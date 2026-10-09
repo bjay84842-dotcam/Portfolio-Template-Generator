@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Portfolio Template Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- html2pdf for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        creative: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .template-classic { font-family: 'Inter', sans-serif; }
+        .template-modern { font-family: 'Inter', sans-serif; }
+        .template-creative { font-family: 'Space Grotesk', sans-serif; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .portfolio-canvas { box-shadow: none !important; padding: 0 !important; width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+    <header class="no-print sticky top-0 z-40 bg-slate-900/90 backdrop-blur border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
+                        <i class="fa-solid font-wand-magic-sparkles"></i>P
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">FolioCraft</span>
+                        <span class="text-xs text-slate-400 block -mt-1 font-mono">Cloud Portfolio Studio</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex space-x-1">
+                    <button onclick="navigateTo('home')" id="nav-home" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60">
+                        <i class="fa-solid fa-house mr-2 text-indigo-400"></i>Home
+                    </button>
+                    <button onclick="navigateTo('editor')" id="nav-editor" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60">
+                        <i class="fa-solid fa-pen-to-square mr-2 text-indigo-400"></i>Create / Edit
+                    </button>
+                    <button onclick="navigateTo('templates')" id="nav-templates" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60">
+                        <i class="fa-solid fa-palette mr-2 text-indigo-400"></i>Templates
+                    </button>
+                    <button onclick="navigateTo('preview')" id="nav-preview" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60">
+                        <i class="fa-solid fa-eye mr-2 text-indigo-400"></i>Live Preview
+                    </button>
+                    <button onclick="navigateTo('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800/60">
+                        <i class="fa-solid fa-database mr-2 text-indigo-400"></i>Cloud Portfolios
+                    </button>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="flex items-center space-x-3">
+                    <div id="db-status-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-full font-mono">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="db-status-text">Cloud Sync Live</span>
+                    </div>
+                    <button onclick="navigateTo('editor')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="hidden sm:inline">New Portfolio</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Bar -->
+        <div class="md:hidden border-t border-slate-800 bg-slate-900/95 flex justify-around py-2 px-1 text-xs">
+            <button onclick="navigateTo('home')" class="flex flex-col items-center p-2 text-slate-400 hover:text-indigo-400">
+                <i class="fa-solid fa-house text-base mb-1"></i>Home
+            </button>
+            <button onclick="navigateTo('editor')" class="flex flex-col items-center p-2 text-slate-400 hover:text-indigo-400">
+                <i class="fa-solid fa-pen-to-square text-base mb-1"></i>Edit
+            </button>
+            <button onclick="navigateTo('templates')" class="flex flex-col items-center p-2 text-slate-400 hover:text-indigo-400">
+                <i class="fa-solid fa-palette text-base mb-1"></i>Designs
+            </button>
+            <button onclick="navigateTo('preview')" class="flex flex-col items-center p-2 text-slate-400 hover:text-indigo-400">
+                <i class="fa-solid fa-eye text-base mb-1"></i>Preview
+            </button>
+            <button onclick="navigateTo('dashboard')" class="flex flex-col items-center p-2 text-slate-400 hover:text-indigo-400">
+                <i class="fa-solid fa-database text-base mb-1"></i>Manage
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+        <!-- ================= HOME PAGE ================= -->
+        <section id="page-home" class="page-view space-y-12 py-4">
+            <!-- Hero -->
+            <div class="relative rounded-3xl bg-gradient-to-br from-indigo-900/50 via-slate-900 to-slate-900 border border-slate-800 p-8 sm:p-12 overflow-hidden shadow-2xl">
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="max-w-3xl relative z-10 space-y-6">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
+                        <i class="fa-solid fa-cloud text-indigo-400"></i> Real-time Firebase Cloud Database Enabled
+                    </span>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
+                        Build & Publish Professional Portfolios in <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Minutes</span>
+                    </h1>
+                    <p class="text-lg text-slate-300 font-normal leading-relaxed">
+                        Design gorgeous online portfolios with custom tech stacks, interactive project galleries, and modern responsive templates. Saved directly to cloud Firestore to access across devices.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="navigateTo('editor')" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Create Portfolio Now</span>
+                        </button>
+                        <button onclick="fillSampleDataAndPreview()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium px-6 py-3.5 rounded-xl transition flex items-center space-x-2">
+                            <i class="fa-solid fa-bolt text-amber-400"></i>
+                            <span>Try Demo Preset</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 space-y-3">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Online Database Storage</h3>
+                    <p class="text-sm text-slate-400">All your portfolio profiles are instantly synchronized and persisted using Firebase Cloud Firestore.</p>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 space-y-3">
+                    <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-cubes"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">3 Distinct Design Themes</h3>
+                    <p class="text-sm text-slate-400">Switch dynamically between Minimalist Classic, Dark Modern Card Grid, and Creative Avant-Garde layouts.</p>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 space-y-3">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Export & Full CRUD</h3>
+                    <p class="text-sm text-slate-400">Manage, edit, duplicate, filter projects, or export full high-res PDF portfolios with single-click actions.</p>
+                </div>
+            </div>
+
+            <!-- Cloud Saved Portfolios List on Home -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Cloud Database Portfolios</h2>
+                        <p class="text-xs text-slate-400">Portfolios saved in online database</p>
+                    </div>
+                    <button onclick="navigateTo('dashboard')" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center space-x-1">
+                        <span>View All in Cloud Dashboard</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+
+                <div id="home-recent-portfolios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Cloud Portfolios Rendered Here -->
+                    <div class="col-span-full py-12 text-center bg-slate-800/30 rounded-2xl border border-dashed border-slate-800 text-slate-400">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl text-indigo-400 mb-2"></i>
+                        <p>Connecting to Cloud Database...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= EDITOR / FORM PAGE ================= -->
+        <section id="page-editor" class="page-view hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                <div>
+                    <h1 id="editor-title" class="text-2xl font-bold text-white">Edit Portfolio Details</h1>
+                    <p class="text-sm text-slate-400">Fill in your information to generate your portfolio website.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="button" onclick="fillSampleData()" class="px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Fill Sample Data</span>
+                    </button>
+                    <button type="button" onclick="savePortfolioToCloud()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Save to Cloud DB</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Tabs Nav -->
+            <div class="flex overflow-x-auto space-x-2 pb-2 border-b border-slate-800 scrollbar-none text-sm">
+                <button onclick="switchFormTab('tab-personal')" id="btn-tab-personal" class="form-tab-btn px-4 py-2.5 rounded-xl font-medium whitespace-nowrap bg-indigo-600 text-white">
+                    1. Personal Info
+                </button>
+                <button onclick="switchFormTab('tab-education')" id="btn-tab-education" class="form-tab-btn px-4 py-2.5 rounded-xl font-medium whitespace-nowrap bg-slate-800 text-slate-400 hover:text-white">
+                    2. Education
+                </button>
+                <button onclick="switchFormTab('tab-skills')" id="btn-tab-skills" class="form-tab-btn px-4 py-2.5 rounded-xl font-medium whitespace-nowrap bg-slate-800 text-slate-400 hover:text-white">
+                    3. Skills
+                </button>
+                <button onclick="switchFormTab('tab-projects')" id="btn-tab-projects" class="form-tab-btn px-4 py-2.5 rounded-xl font-medium whitespace-nowrap bg-slate-800 text-slate-400 hover:text-white">
+                    4. Projects
+                </button>
+                <button onclick="switchFormTab('tab-experience')" id="btn-tab-experience" class="form-tab-btn px-4 py-2.5 rounded-xl font-medium whitespace-nowrap bg-slate-800 text-slate-400 hover:text-white">
+                    5. Work Experience
+                </button>
+            </div>
+
+            <form id="portfolio-form" onsubmit="event.preventDefault();" class="space-y-6">
+                <!-- Tab 1: Personal Info -->
+                <div id="tab-personal" class="form-tab-content space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-800/40 p-6 rounded-2xl border border-slate-800">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Full Name *</label>
+                            <input type="text" id="fullName" required placeholder="e.g. Alex Morgan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Professional Title *</label>
+                            <input type="text" id="professionalTitle" required placeholder="e.g. Senior Full-Stack Engineer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Email Address</label>
+                            <input type="email" id="email" placeholder="alex.morgan@example.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Phone Number</label>
+                            <input type="text" id="phone" placeholder="+1 (555) 234-5678" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Address / Location</label>
+                            <input type="text" id="address" placeholder="San Francisco, CA" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Profile Picture Image URL</label>
+                            <input type="url" id="avatarUrl" placeholder="https://images.unsplash.com/photo-..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="col-span-full space-y-2">
+                            <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">About Me / Bio</label>
+                            <textarea id="bio" rows="4" placeholder="Write a brief professional intro..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/40 p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <h3 class="font-bold text-white">Social & Web Links</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1"><i class="fa-brands fa-github text-slate-300 mr-1"></i> GitHub URL</label>
+                                <input type="url" id="socialGithub" placeholder="https://github.com/username" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1"><i class="fa-brands fa-linkedin text-blue-400 mr-1"></i> LinkedIn URL</label>
+                                <input type="url" id="socialLinkedin" placeholder="https://linkedin.com/in/username" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1"><i class="fa-solid fa-globe text-emerald-400 mr-1"></i> Personal Website</label>
+                                <input type="url" id="socialWebsite" placeholder="https://mywebsite.dev" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Education -->
+                <div id="tab-education" class="form-tab-content hidden space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Educational History</h3>
+                        <button type="button" onclick="addEducationRow()" class="px-3 py-1.5 bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 text-xs font-semibold rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Degree
+                        </button>
+                    </div>
+                    <div id="education-container" class="space-y-4">
+                        <!-- Education items injected here -->
+                    </div>
+                </div>
+
+                <!-- Tab 3: Skills -->
+                <div id="tab-skills" class="form-tab-content hidden space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Skills & Competencies</h3>
+                        <button type="button" onclick="addSkillRow()" class="px-3 py-1.5 bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 text-xs font-semibold rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Skill
+                        </button>
+                    </div>
+                    <div id="skills-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Skills items injected here -->
+                    </div>
+                </div>
+
+                <!-- Tab 4: Projects -->
+                <div id="tab-projects" class="form-tab-content hidden space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Projects Showcase</h3>
+                        <button type="button" onclick="addProjectRow()" class="px-3 py-1.5 bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 text-xs font-semibold rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Project
+                        </button>
+                    </div>
+                    <div id="projects-container" class="space-y-6">
+                        <!-- Projects injected here -->
+                    </div>
+                </div>
+
+                <!-- Tab 5: Work Experience -->
+                <div id="tab-experience" class="form-tab-content hidden space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Work & Industry Experience</h3>
+                        <button type="button" onclick="addExperienceRow()" class="px-3 py-1.5 bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 text-xs font-semibold rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Experience
+                        </button>
+                    </div>
+                    <div id="experience-container" class="space-y-4">
+                        <!-- Experience injected here -->
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-800 flex justify-between items-center">
+                    <button type="button" onclick="navigateTo('templates')" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm rounded-xl transition">
+                        Select Template <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                    <button type="button" onclick="savePortfolioToCloud(); navigateTo('preview');" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition">
+                        Save & Preview <i class="fa-solid fa-eye ml-1"></i>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ================= TEMPLATES SELECTION PAGE ================= -->
+        <section id="page-templates" class="page-view hidden space-y-8">
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <h1 class="text-3xl font-extrabold text-white">Choose Your Portfolio Template</h1>
+                <p class="text-slate-400 text-sm">Select one of three carefully crafted layout designs. You can switch themes at any time without losing data.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Template 1 -->
+                <div onclick="selectTemplate('classic')" id="card-template-classic" class="template-card cursor-pointer rounded-2xl bg-slate-800/60 border-2 border-slate-700 hover:border-indigo-500 p-5 transition transform hover:-translate-y-1 space-y-4 relative group">
+                    <div class="aspect-video rounded-xl bg-slate-100 p-3 overflow-hidden text-slate-800 flex flex-col justify-between shadow-inner">
+                        <div class="border-b border-slate-300 pb-2">
+                            <div class="h-3 w-1/3 bg-slate-800 rounded"></div>
+                            <div class="h-2 w-1/2 bg-slate-400 rounded mt-1"></div>
+                        </div>
+                        <div class="space-y-1.5 py-2">
+                            <div class="h-2 w-full bg-slate-300 rounded"></div>
+                            <div class="h-2 w-5/6 bg-slate-300 rounded"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="h-6 bg-slate-200 rounded border border-slate-300"></div>
+                            <div class="h-6 bg-slate-200 rounded border border-slate-300"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-white text-lg">Template 1: Classic Resume</h3>
+                            <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full">Minimalist</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">Clean typography, structured single-column flow, high legibility, and traditional resume elegance.</p>
+                    </div>
+                    <button class="w-full py-2 bg-indigo-600/20 group-hover:bg-indigo-600 text-indigo-300 group-hover:text-white rounded-xl text-xs font-semibold transition">
+                        Select Classic Template
+                    </button>
+                </div>
+
+                <!-- Template 2 -->
+                <div onclick="selectTemplate('modern')" id="card-template-modern" class="template-card cursor-pointer rounded-2xl bg-slate-800/60 border-2 border-indigo-500 p-5 transition transform hover:-translate-y-1 space-y-4 relative group">
+                    <div class="aspect-video rounded-xl bg-slate-900 border border-slate-700 p-3 overflow-hidden text-slate-100 flex gap-2 shadow-inner">
+                        <div class="w-1/3 bg-slate-800 rounded p-1.5 flex flex-col justify-between">
+                            <div class="w-6 h-6 rounded-full bg-indigo-500 mb-2"></div>
+                            <div class="h-2 w-full bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="w-2/3 space-y-2">
+                            <div class="h-3 w-3/4 bg-indigo-400 rounded"></div>
+                            <div class="grid grid-cols-2 gap-1">
+                                <div class="h-8 bg-slate-800 rounded border border-slate-700"></div>
+                                <div class="h-8 bg-slate-800 rounded border border-slate-700"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-white text-lg">Template 2: Modern Grid</h3>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-medium">Popular</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">Sleek sidebar navigation, vibrant dark card grids, modern badges, and dynamic project filtering.</p>
+                    </div>
+                    <button class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-semibold transition">
+                        Select Modern Grid
+                    </button>
+                </div>
+
+                <!-- Template 3 -->
+                <div onclick="selectTemplate('creative')" id="card-template-creative" class="template-card cursor-pointer rounded-2xl bg-slate-800/60 border-2 border-slate-700 hover:border-indigo-500 p-5 transition transform hover:-translate-y-1 space-y-4 relative group">
+                    <div class="aspect-video rounded-xl bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 p-3 overflow-hidden text-white flex flex-col justify-between shadow-inner">
+                        <div class="bg-gradient-to-r from-pink-500 to-rose-500 h-2 rounded-full w-1/2"></div>
+                        <div class="space-y-1">
+                            <div class="h-4 w-3/4 bg-white/20 rounded font-bold"></div>
+                            <div class="h-2 w-1/2 bg-white/10 rounded"></div>
+                        </div>
+                        <div class="flex gap-1">
+                            <div class="h-4 w-12 bg-pink-500/30 rounded-full"></div>
+                            <div class="h-4 w-12 bg-purple-500/30 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-white text-lg">Template 3: Avant-Garde</h3>
+                            <span class="text-xs bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full">Creative</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">Asymmetric headers, colorful gradient banners, floating skill pills, and bold creative styling.</p>
+                    </div>
+                    <button class="w-full py-2 bg-indigo-600/20 group-hover:bg-indigo-600 text-indigo-300 group-hover:text-white rounded-xl text-xs font-semibold transition">
+                        Select Avant-Garde
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center pt-4">
+                <button onclick="navigateTo('preview')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition">
+                    View Live Preview with Selected Template
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= PREVIEW / GENERATED PAGE ================= -->
+        <section id="page-preview" class="page-view hidden space-y-6">
+            <!-- Toolbar -->
+            <div class="no-print bg-slate-800/80 backdrop-blur p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Active Template:</span>
+                    <select id="template-switcher" onchange="switchTemplateFromPreview(this.value)" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none">
+                        <option value="classic">Template 1: Classic Resume</option>
+                        <option value="modern" selected>Template 2: Modern Card Grid</option>
+                        <option value="creative">Template 3: Creative Avant-Garde</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="navigateTo('editor')" class="px-3.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
+                        <i class="fa-solid fa-pen mr-1"></i> Edit Data
+                    </button>
+                    <button onclick="savePortfolioToCloud()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Save to DB
+                    </button>
+                    <button onclick="exportToPDF()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition">
+                        <i class="fa-solid fa-file-pdf mr-1"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Portfolio Render Canvas -->
+            <div id="portfolio-canvas" class="portfolio-canvas transition-all duration-300">
+                <!-- Template HTML gets dynamic injection here -->
+            </div>
+        </section>
+
+        <!-- ================= MANAGE / DASHBOARD PAGE ================= -->
+        <section id="page-dashboard" class="page-view hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Cloud Database Portfolios</h1>
+                    <p class="text-sm text-slate-400">All portfolio documents stored in Firebase Firestore.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="dashboard-search" oninput="filterDashboardPortfolios()" placeholder="Search by name, title, skill..." class="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl px-4 py-2 w-64 focus:outline-none focus:border-indigo-500">
+                    <button onclick="loadPortfoliosFromCloud()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl border border-slate-700">
+                        <i class="fa-solid fa-rotate text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- List of saved portfolios -->
+            <div id="cloud-portfolios-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cloud dynamic entries -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="no-print border-t border-slate-800 mt-auto py-6 bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span class="font-semibold text-slate-400">FolioCraft Cloud Engine</span> &copy; 2026. Firestore Online DB Persistence Active.
+            </div>
+            <div class="flex space-x-4">
+                <a href="#" onclick="fillSampleData(); navigateTo('preview'); return false;" class="hover:text-indigo-400">Sample Preset</a>
+                <a href="#" onclick="navigateTo('dashboard'); return false;" class="hover:text-indigo-400">Firestore Dashboard</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration setup with safe fallback
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "demo-api-key",
+                authDomain: "demo-project.firebaseapp.com",
+                projectId: "demo-project",
+                storageBucket: "demo-project.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:demo"
+            };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'portfolio-generator-app';
+
+        // State variables
+        let app, db, auth, currentUser = null;
+        let cloudPortfolios = [];
+        let activeProjectFilter = 'all';
+
+        // Global Portfolio Object
+        window.currentPortfolio = {
+            id: 'portfolio_' + Date.now(),
+            template: 'modern',
+            fullName: 'Alex Morgan',
+            professionalTitle: 'Senior Full-Stack Cloud Architect',
+            email: 'alex.morgan@example.com',
+            phone: '+1 (555) 382-9102',
+            address: 'San Francisco, CA',
+            avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=500',
+            bio: 'Passionate software engineer with 6+ years of experience building scalable web apps, real-time distributed systems, and modern visual UI components.',
+            social: {
+                github: 'https://github.com',
+                linkedin: 'https://linkedin.com',
+                website: 'https://alexmorgan.dev'
+            },
+            education: [
+                { degree: 'B.S. in Computer Science', school: 'Stanford University', year: '2016 - 2020', details: 'Graduated with Distinction. Focus on Distributed Systems and Software Architecture.' }
+            ],
+            skills: [
+                { name: 'JavaScript / TypeScript', level: '95', category: 'Frontend' },
+                { name: 'React / Next.js', level: '90', category: 'Frontend' },
+                { name: 'Node.js & Python', level: '85', category: 'Backend' },
+                { name: 'Firebase / Cloud Firestore', level: '92', category: 'Database' },
+                { name: 'Tailwind CSS', level: '98', category: 'Frontend' }
+            ],
+            projects: [
+                {
+                    title: 'CloudSync Dashboard',
+                    description: 'Real-time collaborative analytics platform powered by Cloud Firestore and WebSockets with instant data streaming.',
+                    tags: 'React, Firebase, Tailwind CSS',
+                    link: 'https://github.com'
+                },
+                {
+                    title: 'AI Code Assistant',
+                    description: 'Developer workspace tool that auto-generates unit tests and refactors legacy codebases using LLMs.',
+                    tags: 'TypeScript, Node.js, OpenAI',
+                    link: 'https://github.com'
+                }
+            ],
+            experience: [
+                {
+                    role: 'Lead Frontend Engineer',
+                    company: 'Nexus Tech Solutions',
+                    period: '2022 - Present',
+                    description: 'Architected enterprise cloud interfaces, leading a team of 8 developers and reducing bundle sizes by 40%.'
+                },
+                {
+                    role: 'Full Stack Developer',
+                    company: 'Aura Digital Labs',
+                    period: '2020 - 2022',
+                    description: 'Built high-throughput web applications with seamless serverless backend integration.'
+                }
+            ],
+            updatedAt: new Date().toISOString()
+        };
+
+        // Initialize Firebase
+        async function initFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Authentication
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        updateDbBadge(true, "Cloud Connected");
+                        subscribeToPortfolios();
+                    } else {
+                        updateDbBadge(false, "Offline Mode");
+                    }
+                });
+            } catch (err) {
+                console.warn("Firestore initialization running with fallback/mock local persistent state:", err);
+                updateDbBadge(false, "Demo Local Mode");
+                loadMockCloudPortfolios();
+            }
+        }
+
+        function updateDbBadge(online, text) {
+            const badge = document.getElementById('db-status-badge');
+            const statusText = document.getElementById('db-status-text');
+            if (badge && statusText) {
+                statusText.innerText = text;
+                if (online) {
+                    badge.className = "hidden sm:flex items-center space-x-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-full font-mono";
+                } else {
+                    badge.className = "hidden sm:flex items-center space-x-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs rounded-full font-mono";
+                }
+            }
+        }
+
+        // Firestore Operations
+        window.savePortfolioToCloud = async function() {
+            syncFormToData();
+            window.currentPortfolio.updatedAt = new Date().toISOString();
+
+            if (!currentUser || !db) {
+                saveToLocalStorage(window.currentPortfolio);
+                showToast("Saved to local storage!", "success");
+                return;
+            }
+
+            try {
+                // Rule 1 strictly followed
+                const portfolioRef = doc(db, 'artifacts', appId, 'public', 'data', 'portfolios', window.currentPortfolio.id);
+                await setDoc(portfolioRef, window.currentPortfolio, { merge: true });
+                showToast("Portfolio saved to Cloud Firestore!", "success");
+            } catch (err) {
+                console.error("Firestore Save Error:", err);
+                saveToLocalStorage(window.currentPortfolio);
+                showToast("Saved locally (Cloud sync backup)", "warning");
+            }
+        }
+
+        function subscribeToPortfolios() {
+            if (!currentUser || !db) return;
+            try {
+                // Rule 1 & Rule 2 followed: path and simple query
+                const portfoliosCol = collection(db, 'artifacts', appId, 'public', 'data', 'portfolios');
+                onSnapshot(portfoliosCol, (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(docSnap => {
+                        list.push(docSnap.data());
+                    });
+                    // Client-side sort by date
+                    list.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+                    cloudPortfolios = list;
+                    renderCloudPortfoliosGrid();
+                    renderHomeRecentPortfolios();
+                }, (err) => {
+                    console.error("Firestore Snapshot Error:", err);
+                    loadMockCloudPortfolios();
+                });
+            } catch (err) {
+                console.error("Subscription Error:", err);
+            }
+        }
+
+        window.deletePortfolioFromCloud = async function(id) {
+            if (!confirm("Are you sure you want to delete this portfolio from the cloud database?")) return;
+
+            if (currentUser && db) {
+                try {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'portfolios', id);
+                    await deleteDoc(ref);
+                    showToast("Portfolio deleted from database", "info");
+                } catch (err) {
+                    console.error("Delete Error:", err);
+                    showToast("Could not delete from cloud", "error");
+                }
+            } else {
+                cloudPortfolios = cloudPortfolios.filter(p => p.id !== id);
+                renderCloudPortfoliosGrid();
+                renderHomeRecentPortfolios();
+                showToast("Portfolio deleted", "info");
+            }
+        }
+
+        window.duplicatePortfolio = async function(id) {
+            const target = cloudPortfolios.find(p => p.id === id) || window.currentPortfolio;
+            const newPortfolio = JSON.parse(JSON.stringify(target));
+            newPortfolio.id = 'portfolio_' + Date.now();
+            newPortfolio.fullName += ' (Copy)';
+            newPortfolio.updatedAt = new Date().toISOString();
+
+            if (currentUser && db) {
+                try {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'portfolios', newPortfolio.id);
+                    await setDoc(ref, newPortfolio);
+                    showToast("Portfolio duplicated in cloud!", "success");
+                } catch (err) {
+                    console.error("Duplicate Error:", err);
+                }
+            } else {
+                cloudPortfolios.unshift(newPortfolio);
+                renderCloudPortfoliosGrid();
+                renderHomeRecentPortfolios();
+                showToast("Portfolio duplicated", "success");
+            }
+        }
+
+        window.loadPortfolioIntoEditor = function(id) {
+            const found = cloudPortfolios.find(p => p.id === id);
+            if (found) {
+                window.currentPortfolio = JSON.parse(JSON.stringify(found));
+                syncDataToForm();
+                renderPortfolioPreview();
+                showToast(`Loaded "${found.fullName}" into editor`, "info");
+                navigateTo('editor');
+            }
+        }
+
+        function saveToLocalStorage(data) {
+            try {
+                let local = JSON.parse(localStorage.getItem('folio_cloud_backup') || '[]');
+                local = local.filter(p => p.id !== data.id);
+                local.unshift(data);
+                localStorage.setItem('folio_cloud_backup', JSON.stringify(local));
+                cloudPortfolios = local;
+                renderCloudPortfoliosGrid();
+                renderHomeRecentPortfolios();
+            } catch(e){}
+        }
+
+        function loadMockCloudPortfolios() {
+            try {
+                const local = JSON.parse(localStorage.getItem('folio_cloud_backup') || '[]');
+                if (local.length > 0) {
+                    cloudPortfolios = local;
+                } else {
+                    cloudPortfolios = [window.currentPortfolio];
+                }
+            } catch(e) {
+                cloudPortfolios = [window.currentPortfolio];
+            }
+            renderCloudPortfoliosGrid();
+            renderHomeRecentPortfolios();
+        }
+
+        // Navigation Controller
+        window.navigateTo = function(pageId) {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`page-${pageId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Update nav active states
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600/20', 'text-indigo-400');
+            });
+            const activeNav = document.getElementById(`nav-${pageId}`);
+            if (activeNav) activeNav.classList.add('bg-indigo-600/20', 'text-indigo-400');
+
+            if (pageId === 'preview') {
+                syncFormToData();
+                renderPortfolioPreview();
+            } else if (pageId === 'editor') {
+                syncDataToForm();
+            } else if (pageId === 'dashboard') {
+                renderCloudPortfoliosGrid();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Form Tab Switching
+        window.switchFormTab = function(tabId) {
+            document.querySelectorAll('.form-tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.form-tab-btn').forEach(btn => {
+                btn.className = "form-tab-btn px-4 py-2.5 rounded-xl font-medium whitespace-nowrap bg-slate-800 text-slate-400 hover:text-white";
+            });
+
+            const content = document.getElementById(tabId);
+            const btn = document.getElementById(`btn-${tabId}`);
+            if (content) content.classList.remove('hidden');
+            if (btn) btn.className = "form-tab-btn px-4 py-2.5 rounded-xl font-medium whitespace-nowrap bg-indigo-600 text-white";
+        };
+
+        // Sync Form Elements & Data Object
+        function syncDataToForm() {
+            const data = window.currentPortfolio;
+            document.getElementById('fullName').value = data.fullName || '';
+            document.getElementById('professionalTitle').value = data.professionalTitle || '';
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('phone').value = data.phone || '';
+            document.getElementById('address').value = data.address || '';
+            document.getElementById('avatarUrl').value = data.avatarUrl || '';
+            document.getElementById('bio').value = data.bio || '';
+            
+            document.getElementById('socialGithub').value = data.social?.github || '';
+            document.getElementById('socialLinkedin').value = data.social?.linkedin || '';
+            document.getElementById('socialWebsite').value = data.social?.website || '';
+
+            renderEducationInputs();
+            renderSkillsInputs();
+            renderProjectsInputs();
+            renderExperienceInputs();
+        }
+
+        function syncFormToData() {
+            window.currentPortfolio.fullName = document.getElementById('fullName').value || 'Anonymous User';
+            window.currentPortfolio.professionalTitle = document.getElementById('professionalTitle').value || 'Developer';
+            window.currentPortfolio.email = document.getElementById('email').value || '';
+            window.currentPortfolio.phone = document.getElementById('phone').value || '';
+            window.currentPortfolio.address = document.getElementById('address').value || '';
+            window.currentPortfolio.avatarUrl = document.getElementById('avatarUrl').value || '';
+            window.currentPortfolio.bio = document.getElementById('bio').value || '';
+
+            window.currentPortfolio.social = {
+                github: document.getElementById('socialGithub').value || '',
+                linkedin: document.getElementById('socialLinkedin').value || '',
+                website: document.getElementById('socialWebsite').value || ''
+            };
+
+            // Collect Education
+            const eduRows = document.querySelectorAll('.edu-item-row');
+            window.currentPortfolio.education = Array.from(eduRows).map(row => ({
+                degree: row.querySelector('.edu-degree').value,
+                school: row.querySelector('.edu-school').value,
+                year: row.querySelector('.edu-year').value,
+                details: row.querySelector('.edu-details').value
+            }));
+
+            // Collect Skills
+            const skillRows = document.querySelectorAll('.skill-item-row');
+            window.currentPortfolio.skills = Array.from(skillRows).map(row => ({
+                name: row.querySelector('.skill-name').value,
+                level: row.querySelector('.skill-level').value,
+                category: row.querySelector('.skill-category').value
+            }));
+
+            // Collect Projects
+            const projRows = document.querySelectorAll('.project-item-row');
+            window.currentPortfolio.projects = Array.from(projRows).map(row => ({
+                title: row.querySelector('.proj-title').value,
+                description: row.querySelector('.proj-desc').value,
+                tags: row.querySelector('.proj-tags').value,
+                link: row.querySelector('.proj-link').value
+            }));
+
+            // Collect Experience
+            const expRows = document.querySelectorAll('.exp-item-row');
+            window.currentPortfolio.experience = Array.from(expRows).map(row => ({
+                role: row.querySelector('.exp-role').value,
+                company: row.querySelector('.exp-company').value,
+                period: row.querySelector('.exp-period').value,
+                description: row.querySelector('.exp-desc').value
+            }));
+        }
+
+        // Form Item Renderers & Adders
+        function renderEducationInputs() {
+            const container = document.getElementById('education-container');
+            container.innerHTML = '';
+            (window.currentPortfolio.education || []).forEach((edu, idx) => {
+                const el = document.createElement('div');
+                el.className = 'edu-item-row bg-slate-800/40 p-4 rounded-xl border border-slate-800 space-y-3 relative';
+                el.innerHTML = `
+                    <button type="button" onclick="this.closest('.edu-item-row').remove()" class="absolute top-3 right-3 text-red-400 hover:text-red-300 text-xs">
+                        <i class="fa-solid fa-trash"></i> Remove
+                    </button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" value="${edu.degree || ''}" placeholder="Degree/Diploma" class="edu-degree bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                        <input type="text" value="${edu.school || ''}" placeholder="School / University" class="edu-school bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                        <input type="text" value="${edu.year || ''}" placeholder="Years (e.g. 2018 - 2022)" class="edu-year bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                    </div>
+                    <textarea placeholder="Additional achievements, GPA, major..." class="edu-details w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none">${edu.details || ''}</textarea>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        window.addEducationRow = function() {
+            window.currentPortfolio.education.push({ degree: '', school: '', year: '', details: '' });
+            renderEducationInputs();
+        };
+
+        function renderSkillsInputs() {
+            const container = document.getElementById('skills-container');
+            container.innerHTML = '';
+            (window.currentPortfolio.skills || []).forEach((skill) => {
+                const el = document.createElement('div');
+                el.className = 'skill-item-row bg-slate-800/40 p-4 rounded-xl border border-slate-800 space-y-3 relative';
+                el.innerHTML = `
+                    <button type="button" onclick="this.closest('.skill-item-row').remove()" class="absolute top-3 right-3 text-red-400 hover:text-red-300 text-xs">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <div class="space-y-2">
+                        <input type="text" value="${skill.name || ''}" placeholder="Skill Name (e.g. React)" class="skill-name w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                        <div class="flex gap-2">
+                            <input type="number" min="0" max="100" value="${skill.level || '80'}" placeholder="Proficiency %" class="skill-level w-1/2 bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                            <select class="skill-category w-1/2 bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                                <option value="Frontend" ${skill.category === 'Frontend' ? 'selected' : ''}>Frontend</option>
+                                <option value="Backend" ${skill.category === 'Backend' ? 'selected' : ''}>Backend</option>
+                                <option value="Database" ${skill.category === 'Database' ? 'selected' : ''}>Database</option>
+                                <option value="Tools" ${skill.category === 'Tools' ? 'selected' : ''}>Tools / DevOps</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        window.addSkillRow = function() {
+            window.currentPortfolio.skills.push({ name: '', level: '80', category: 'Frontend' });
+            renderSkillsInputs();
+        };
+
+        function renderProjectsInputs() {
+            const container = document.getElementById('projects-container');
+            container.innerHTML = '';
+            (window.currentPortfolio.projects || []).forEach((proj) => {
+                const el = document.createElement('div');
+                el.className = 'project-item-row bg-slate-800/40 p-4 rounded-xl border border-slate-800 space-y-3 relative';
+                el.innerHTML = `
+                    <button type="button" onclick="this.closest('.project-item-row').remove()" class="absolute top-3 right-3 text-red-400 hover:text-red-300 text-xs">
+                        <i class="fa-solid fa-trash"></i> Remove
+                    </button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input type="text" value="${proj.title || ''}" placeholder="Project Title" class="proj-title bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                        <input type="url" value="${proj.link || ''}" placeholder="Project Link / GitHub URL" class="proj-link bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                    </div>
+                    <input type="text" value="${proj.tags || ''}" placeholder="Tech Stack Tags (Comma separated: React, Tailwind, Firebase)" class="proj-tags w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                    <textarea placeholder="Describe the project achievements and features..." class="proj-desc w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none">${proj.description || ''}</textarea>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        window.addProjectRow = function() {
+            window.currentPortfolio.projects.push({ title: '', description: '', tags: '', link: '' });
+            renderProjectsInputs();
+        };
+
+        function renderExperienceInputs() {
+            const container = document.getElementById('experience-container');
+            container.innerHTML = '';
+            (window.currentPortfolio.experience || []).forEach((exp) => {
+                const el = document.createElement('div');
+                el.className = 'exp-item-row bg-slate-800/40 p-4 rounded-xl border border-slate-800 space-y-3 relative';
+                el.innerHTML = `
+                    <button type="button" onclick="this.closest('.exp-item-row').remove()" class="absolute top-3 right-3 text-red-400 hover:text-red-300 text-xs">
+                        <i class="fa-solid fa-trash"></i> Remove
+                    </button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" value="${exp.role || ''}" placeholder="Job Role / Position" class="exp-role bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                        <input type="text" value="${exp.company || ''}" placeholder="Company Name" class="exp-company bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                        <input type="text" value="${exp.period || ''}" placeholder="Period (e.g. 2021 - Present)" class="exp-period bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none">
+                    </div>
+                    <textarea placeholder="Key responsibilities & accomplishments..." class="exp-desc w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none">${exp.description || ''}</textarea>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        window.addExperienceRow = function() {
+            window.currentPortfolio.experience.push({ role: '', company: '', period: '', description: '' });
+            renderExperienceInputs();
+        };
+
+        // Fill Sample Data Function
+        window.fillSampleData = function() {
+            window.currentPortfolio = {
+                id: window.currentPortfolio.id || 'portfolio_' + Date.now(),
+                template: window.currentPortfolio.template || 'modern',
+                fullName: 'Samantha Vance',
+                professionalTitle: 'Full-Stack Developer & UI Architect',
+                email: 'samantha.vance@dev.io',
+                phone: '+1 (415) 890-2134',
+                address: 'Austin, Texas',
+                avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=500',
+                bio: 'Passionate digital creator specializing in building scalable web applications, sleek micro-interactions, and real-time cloud integrations.',
+                social: {
+                    github: 'https://github.com',
+                    linkedin: 'https://linkedin.com',
+                    website: 'https://samanthavance.dev'
+                },
+                education: [
+                    { degree: 'B.S. Software Engineering', school: 'UT Austin', year: '2017 - 2021', details: 'Focused on Cloud Architecture and HCI design principles.' }
+                ],
+                skills: [
+                    { name: 'JavaScript / React', level: '95', category: 'Frontend' },
+                    { name: 'Tailwind CSS', level: '98', category: 'Frontend' },
+                    { name: 'Node.js / Express', level: '88', category: 'Backend' },
+                    { name: 'Firebase / Firestore', level: '90', category: 'Database' },
+                    { name: 'Git & Docker', level: '82', category: 'Tools' }
+                ],
+                projects: [
+                    { title: 'TaskPulse Cloud', description: 'Real-time kanban board app with multiplayer drag-and-drop features.', tags: 'React, Firebase, Tailwind', link: 'https://github.com' },
+                    { title: 'DevMetrics API', description: 'High-performance metrics aggregator for microservices monitoring.', tags: 'Node.js, Express, Redis', link: 'https://github.com' }
+                ],
+                experience: [
+                    { role: 'Senior Developer', company: 'CloudScale Inc', period: '2022 - Present', description: 'Architected interactive customer dashboard serving over 500k monthly users.' },
+                    { role: 'Frontend Engineer', company: 'ByteForge Studios', period: '2021 - 2022', description: 'Developed custom design tokens and reusable UI component library.' }
+                ],
+                updatedAt: new Date().toISOString()
+            };
+            syncDataToForm();
+            showToast("Filled sample portfolio data!", "success");
+        };
+
+        window.fillSampleDataAndPreview = function() {
+            fillSampleData();
+            savePortfolioToCloud();
+            navigateTo('preview');
+        };
+
+        // Template Selector Actions
+        window.selectTemplate = function(templateKey) {
+            window.currentPortfolio.template = templateKey;
+            
+            // Highlight selected card
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('border-indigo-500');
+                card.classList.add('border-slate-700');
+            });
+            const activeCard = document.getElementById(`card-template-${templateKey}`);
+            if (activeCard) {
+                activeCard.classList.remove('border-slate-700');
+                activeCard.classList.add('border-indigo-500');
+            }
+
+            const switcher = document.getElementById('template-switcher');
+            if (switcher) switcher.value = templateKey;
+
+            showToast(`Selected Template: ${templateKey.toUpperCase()}`, "info");
+        };
+
+        window.switchTemplateFromPreview = function(templateKey) {
+            window.currentPortfolio.template = templateKey;
+            renderPortfolioPreview();
+            showToast(`Switched to ${templateKey.toUpperCase()} layout`, "info");
+        };
+
+        // Main Template Rendering Router
+        function renderPortfolioPreview() {
+            const container = document.getElementById('portfolio-canvas');
+            if (!container) return;
+
+            const t = window.currentPortfolio.template || 'modern';
+            const data = window.currentPortfolio;
+
+            if (t === 'classic') {
+                container.innerHTML = renderClassicTemplate(data);
+            } else if (t === 'creative') {
+                container.innerHTML = renderCreativeTemplate(data);
+            } else {
+                container.innerHTML = renderModernTemplate(data);
+            }
+        }
+
+        // Project filter helper
+        window.setProjectFilter = function(category) {
+            activeProjectFilter = category;
+            renderPortfolioPreview();
+        };
+
+        // TEMPLATE 1: CLASSIC RESUME (Minimalist & Professional)
+        function renderClassicTemplate(data) {
+            return `
+                <div class="template-classic max-w-4xl mx-auto bg-white text-slate-900 p-8 sm:p-12 rounded-2xl shadow-xl space-y-8">
+                    <!-- Header -->
+                    <div class="border-b-2 border-slate-900 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">${data.fullName}</h1>
+                            <p class="text-lg font-medium text-slate-600">${data.professionalTitle}</p>
+                        </div>
+                        <div class="text-xs text-slate-600 space-y-1 sm:text-right">
+                            ${data.email ? `<div><i class="fa-solid fa-envelope mr-1"></i> ${data.email}</div>` : ''}
+                            ${data.phone ? `<div><i class="fa-solid fa-phone mr-1"></i> ${data.phone}</div>` : ''}
+                            ${data.address ? `<div><i class="fa-solid fa-location-dot mr-1"></i> ${data.address}</div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    ${data.bio ? `
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Summary</h2>
+                            <p class="text-sm text-slate-700 leading-relaxed">${data.bio}</p>
+                        </div>
+                    ` : ''}
+
+                    <!-- Skills -->
+                    ${data.skills && data.skills.length ? `
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">Technical Skills</h2>
+                            <div class="flex flex-wrap gap-2">
+                                ${data.skills.map(s => `
+                                    <span class="px-3 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-medium text-slate-800">
+                                        ${s.name} (${s.level}%)
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Experience -->
+                    ${data.experience && data.experience.length ? `
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-1">Work Experience</h2>
+                            <div class="space-y-4">
+                                ${data.experience.map(exp => `
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between items-baseline">
+                                            <h3 class="font-bold text-slate-900 text-sm">${exp.role} <span class="font-normal text-slate-600">at ${exp.company}</span></h3>
+                                            <span class="text-xs text-slate-500 font-mono">${exp.period}</span>
+                                        </div>
+                                        <p class="text-xs text-slate-600 leading-relaxed">${exp.description}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Projects -->
+                    ${data.projects && data.projects.length ? `
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-200 pb-1">Featured Projects</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${data.projects.map(proj => `
+                                    <div class="p-4 border border-slate-200 rounded-lg space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="font-bold text-slate-900 text-sm">${proj.title}</h3>
+                                            ${proj.link ? `<a href="${proj.link}" target="_blank" class="text-xs text-indigo-600 hover:underline"><i class="fa-solid fa-external-link"></i></a>` : ''}
+                                        </div>
+                                        <p class="text-xs text-slate-600">${proj.description}</p>
+                                        <div class="text-[10px] text-slate-500 font-mono">${proj.tags}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Education -->
+                    ${data.education && data.education.length ? `
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">Education</h2>
+                            <div class="space-y-2">
+                                ${data.education.map(edu => `
+                                    <div class="flex justify-between items-baseline">
+                                        <div>
+                                            <span class="font-bold text-sm text-slate-900">${edu.degree}</span> - <span class="text-xs text-slate-600">${edu.school}</span>
+                                        </div>
+                                        <span class="text-xs text-slate-500 font-mono">${edu.year}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // TEMPLATE 2: MODERN CARD GRID (Dark Accent Sidebar & Interactive Grid)
+        function renderModernTemplate(data) {
+            const filteredProjects = activeProjectFilter === 'all' 
+                ? data.projects 
+                : data.projects.filter(p => p.tags && p.tags.toLowerCase().includes(activeProjectFilter.toLowerCase()));
+
+            return `
+                <div class="template-modern max-w-6xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-12 text-slate-100">
+                    <!-- Left Sidebar Hero -->
+                    <div class="lg:col-span-4 bg-slate-800/80 p-8 border-b lg:border-b-0 lg:border-r border-slate-700/60 flex flex-col justify-between space-y-6">
+                        <div class="space-y-6">
+                            ${data.avatarUrl ? `
+                                <img src="${data.avatarUrl}" onerror="this.src='https://placehold.co/200x200/334155/fff?text=User'" alt="Profile" class="w-28 h-28 rounded-2xl object-cover border-2 border-indigo-500 shadow-xl">
+                            ` : `
+                                <div class="w-24 h-24 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center text-3xl font-bold">
+                                    ${data.fullName.charAt(0)}
+                                </div>
+                            `}
+
+                            <div>
+                                <h1 class="text-2xl font-extrabold text-white tracking-tight">${data.fullName}</h1>
+                                <p class="text-indigo-400 font-medium text-sm mt-1">${data.professionalTitle}</p>
+                            </div>
+
+                            <p class="text-xs text-slate-300 leading-relaxed bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
+                                ${data.bio || 'Welcome to my official digital portfolio.'}
+                            </p>
+
+                            <!-- Social Links -->
+                            <div class="flex space-x-3 text-slate-400">
+                                ${data.social?.github ? `<a href="${data.social.github}" target="_blank" class="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center hover:text-white hover:bg-indigo-600 transition"><i class="fa-brands fa-github text-sm"></i></a>` : ''}
+                                ${data.social?.linkedin ? `<a href="${data.social.linkedin}" target="_blank" class="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center hover:text-white hover:bg-indigo-600 transition"><i class="fa-brands fa-linkedin text-sm"></i></a>` : ''}
+                                ${data.social?.website ? `<a href="${data.social.website}" target="_blank" class="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center hover:text-white hover:bg-indigo-600 transition"><i class="fa-solid fa-globe text-sm"></i></a>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Contact info box -->
+                        <div class="space-y-2 text-xs text-slate-400 pt-4 border-t border-slate-700/50">
+                            ${data.email ? `<div class="flex items-center space-x-2"><i class="fa-solid fa-envelope text-indigo-400 w-4"></i><span>${data.email}</span></div>` : ''}
+                            ${data.phone ? `<div class="flex items-center space-x-2"><i class="fa-solid fa-phone text-indigo-400 w-4"></i><span>${data.phone}</span></div>` : ''}
+                            ${data.address ? `<div class="flex items-center space-x-2"><i class="fa-solid fa-location-dot text-indigo-400 w-4"></i><span>${data.address}</span></div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Right Content Area -->
+                    <div class="lg:col-span-8 p-6 sm:p-10 space-y-10">
+                        <!-- Skills Section -->
+                        ${data.skills && data.skills.length ? `
+                            <div class="space-y-4">
+                                <h2 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-code"></i> Skills & Proficiency
+                                </h2>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    ${data.skills.map(s => `
+                                        <div class="bg-slate-800/40 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                                            <div class="flex justify-between text-xs font-semibold">
+                                                <span class="text-white">${s.name}</span>
+                                                <span class="text-indigo-400 font-mono">${s.level}%</span>
+                                            </div>
+                                            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" style="width: ${s.level}%"></div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Interactive Projects Section -->
+                        ${data.projects && data.projects.length ? `
+                            <div class="space-y-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <h2 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-rocket"></i> Projects Showcase
+                                    </h2>
+                                    <!-- Dynamic Tech Stack Filter Buttons -->
+                                    <div class="flex flex-wrap gap-1.5 text-xs">
+                                        <button onclick="setProjectFilter('all')" class="px-2.5 py-1 rounded-md ${activeProjectFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}">All</button>
+                                        <button onclick="setProjectFilter('React')" class="px-2.5 py-1 rounded-md ${activeProjectFilter === 'React' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}">React</button>
+                                        <button onclick="setProjectFilter('Firebase')" class="px-2.5 py-1 rounded-md ${activeProjectFilter === 'Firebase' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}">Firebase</button>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    ${filteredProjects.map(proj => `
+                                        <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition flex flex-col justify-between space-y-3">
+                                            <div class="space-y-2">
+                                                <div class="flex justify-between items-start">
+                                                    <h3 class="font-bold text-white text-base">${proj.title}</h3>
+                                                    ${proj.link ? `<a href="${proj.link}" target="_blank" class="text-slate-400 hover:text-indigo-400 text-sm"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
+                                                </div>
+                                                <p class="text-xs text-slate-300 leading-relaxed">${proj.description}</p>
+                                            </div>
+                                            <div class="flex flex-wrap gap-1 pt-2">
+                                                ${(proj.tags || '').split(',').map(tag => `
+                                                    <span class="px-2 py-0.5 bg-indigo-500/10 text-indigo-300 rounded text-[10px] font-mono border border-indigo-500/20">${tag.trim()}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Work Experience -->
+                        ${data.experience && data.experience.length ? `
+                            <div class="space-y-4">
+                                <h2 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-briefcase"></i> Experience
+                                </h2>
+                                <div class="space-y-4 border-l-2 border-slate-800 pl-4">
+                                    ${data.experience.map(exp => `
+                                        <div class="space-y-1 relative">
+                                            <div class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
+                                            <div class="flex justify-between items-baseline">
+                                                <h3 class="font-bold text-white text-sm">${exp.role} <span class="text-slate-400 font-normal">@ ${exp.company}</span></h3>
+                                                <span class="text-xs text-slate-500 font-mono">${exp.period}</span>
+                                            </div>
+                                            <p class="text-xs text-slate-400 leading-relaxed">${exp.description}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // TEMPLATE 3: CREATIVE AVANT-GARDE (Colorful Gradients & Dynamic Accents)
+        function renderCreativeTemplate(data) {
+            return `
+                <div class="template-creative max-w-5xl mx-auto bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl text-slate-100">
+                    <!-- Hero Banner -->
+                    <div class="relative bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 p-8 sm:p-14 overflow-hidden">
+                        <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                            ${data.avatarUrl ? `
+                                <img src="${data.avatarUrl}" onerror="this.src='https://placehold.co/200x200/db2777/fff?text=Creative'" class="w-32 h-32 rounded-full object-cover border-4 border-white/20 shadow-2xl">
+                            ` : ''}
+                            <div class="space-y-2">
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs uppercase tracking-widest font-bold">Creative Portfolio</span>
+                                <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight">${data.fullName}</h1>
+                                <p class="text-xl font-medium text-pink-100">${data.professionalTitle}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 sm:p-12 space-y-12">
+                        <!-- About Section -->
+                        ${data.bio ? `
+                            <div class="bg-gradient-to-br from-slate-900 to-slate-900/80 p-6 rounded-3xl border border-slate-800/80 space-y-3">
+                                <h2 class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">About the Author</h2>
+                                <p class="text-sm text-slate-300 leading-relaxed font-sans">${data.bio}</p>
+                            </div>
+                        ` : ''}
+
+                        <!-- Floating Skill Pills -->
+                        ${data.skills && data.skills.length ? `
+                            <div class="space-y-4">
+                                <h2 class="text-xl font-bold text-white">Skills & Powers</h2>
+                                <div class="flex flex-wrap gap-3">
+                                    ${data.skills.map(s => `
+                                        <div class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-2xl flex items-center space-x-3 shadow-lg">
+                                            <span class="text-sm font-semibold text-slate-200">${s.name}</span>
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] bg-pink-500/20 text-pink-300 font-bold">${s.level}%</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Project Cards -->
+                        ${data.projects && data.projects.length ? `
+                            <div class="space-y-6">
+                                <h2 class="text-xl font-bold text-white">Selected Works</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    ${data.projects.map(proj => `
+                                        <div class="group relative bg-slate-900 rounded-3xl p-6 border border-slate-800 hover:border-pink-500/50 transition duration-300 space-y-4">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="text-lg font-bold text-white group-hover:text-pink-400 transition">${proj.title}</h3>
+                                                ${proj.link ? `<a href="${proj.link}" target="_blank" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs hover:bg-pink-600 hover:text-white transition"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
+                                            </div>
+                                            <p class="text-xs text-slate-400 font-sans leading-relaxed">${proj.description}</p>
+                                            <div class="text-[11px] text-pink-400/90 font-mono">${proj.tags}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCloudPortfoliosGrid() {
+            const grid = document.getElementById('cloud-portfolios-grid');
+            if (!grid) return;
+
+            if (cloudPortfolios.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center bg-slate-800/30 rounded-3xl border border-dashed border-slate-800 space-y-3">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-600"></i>
+                        <p class="text-slate-400 text-sm">No saved portfolios in cloud database yet.</p>
+                        <button onclick="fillSampleData(); savePortfolioToCloud();" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl">
+                            Create Sample Portfolio
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = cloudPortfolios.map(p => `
+                <div class="bg-slate-800/60 border border-slate-800 rounded-2xl p-5 hover:border-indigo-500/50 transition space-y-4 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-3">
+                                ${p.avatarUrl ? `
+                                    <img src="${p.avatarUrl}" onerror="this.src='https://placehold.co/100x100/334155/fff?text=User'" class="w-10 h-10 rounded-xl object-cover">
+                                ` : `
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
+                                        ${(p.fullName || 'A').charAt(0)}
+                                    </div>
+                                `}
+                                <div>
+                                    <h3 class="font-bold text-white text-sm line-clamp-1">${p.fullName || 'Untitled Portfolio'}</h3>
+                                    <p class="text-xs text-indigo-400 line-clamp-1">${p.professionalTitle || 'Developer'}</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 text-[10px] uppercase font-mono">${p.template || 'modern'}</span>
+                        </div>
+                        <p class="text-xs text-slate-400 line-clamp-2">${p.bio || 'No bio provided.'}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs">
+                        <span class="text-slate-500 text-[10px]"><i class="fa-solid fa-cloud mr-1"></i> ${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'Cloud Saved'}</span>
+                        <div class="flex space-x-1">
+                            <button onclick="loadPortfolioIntoEditor('${p.id}')" title="Edit Portfolio" class="p-2 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="duplicatePortfolio('${p.id}')" title="Duplicate Portfolio" class="p-2 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button onclick="deletePortfolioFromCloud('${p.id}')" title="Delete Portfolio" class="p-2 hover:bg-red-500/20 text-red-400 rounded-lg">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHomeRecentPortfolios() {
+            const container = document.getElementById('home-recent-portfolios');
+            if (!container) return;
+
+            if (cloudPortfolios.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-8 text-center bg-slate-800/30 rounded-2xl border border-slate-800 text-slate-400 text-sm">
+                        No portfolios saved yet. Click "Create Portfolio Now" above!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = cloudPortfolios.slice(0, 3).map(p => `
+                <div onclick="loadPortfolioIntoEditor('${p.id}')" class="cursor-pointer bg-slate-800/50 border border-slate-800 hover:border-indigo-500 p-5 rounded-2xl space-y-3 transition">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
+                            ${(p.fullName || 'A').charAt(0)}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${p.fullName}</h4>
+                            <p class="text-xs text-indigo-400">${p.professionalTitle}</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 line-clamp-2">${p.bio || 'Professional cloud portfolio'}</p>
+                </div>
+            `).join('');
+        }
+
+        window.filterDashboardPortfolios = function() {
+            const query = (document.getElementById('dashboard-search')?.value || '').toLowerCase();
+            const filtered = cloudPortfolios.filter(p => 
+                (p.fullName && p.fullName.toLowerCase().includes(query)) ||
+                (p.professionalTitle && p.professionalTitle.toLowerCase().includes(query)) ||
+                (p.bio && p.bio.toLowerCase().includes(query))
+            );
+            
+            const grid = document.getElementById('cloud-portfolios-grid');
+            if (!grid) return;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-sm">No matching portfolios found.</div>`;
+                return;
+            }
+
+            // Temporarily swap global to render search results
+            const temp = [...cloudPortfolios];
+            cloudPortfolios = filtered;
+            renderCloudPortfoliosGrid();
+            cloudPortfolios = temp;
+        };
+
+        // Export PDF Action
+        window.exportToPDF = function() {
+            const canvas = document.getElementById('portfolio-canvas');
+            if (!canvas) return;
+
+            showToast("Generating high quality PDF export...", "info");
+            const opt = {
+                margin: 0.3,
+                filename: `${window.currentPortfolio.fullName.replace(/\s+/g, '_')}_Portfolio.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(canvas).save().then(() => {
+                showToast("PDF exported successfully!", "success");
+            }).catch(err => {
+                console.error("PDF Export error:", err);
+                window.print();
+            });
+        };
+
+        // Toast Helper Function
+        window.showToast = function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                warning: 'bg-amber-600 text-white',
+                error: 'bg-rose-600 text-white',
+                info: 'bg-indigo-600 text-white'
+            };
+
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-2xl ${colors[type] || colors.info} text-xs font-semibold flex items-center space-x-2 transition transform translate-y-2 opacity-0 duration-300`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // On Load Initialization
+        window.onload = function() {
+            initFirebase();
+            syncDataToForm();
+            renderPortfolioPreview();
+        };
+    </script>
+</body>
+</html>
